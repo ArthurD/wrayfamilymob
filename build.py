@@ -1,21 +1,19 @@
 #!/usr/bin/env python3
-"""Generate site/index.html from links.json and whatever is in materials/.
+"""Generate site/index.html from links.json, characters.json, and materials/.
 
-Drop files into materials/ (subfolders become sections), edit links.json for
-external links, then run:  python3 build.py
+Run:  python3 build.py
 """
 
 import html
 import json
-import os
 from pathlib import Path
 
 ROOT = Path(__file__).parent
 MATERIALS = ROOT / "materials"
 OUT = ROOT / "site" / "index.html"
-CONFIG = ROOT / "links.json"
+LINKS = ROOT / "links.json"
+CHARACTERS = ROOT / "characters.json"
 
-# Files we never publish, even if they land in materials/ by accident.
 SKIP = {".DS_Store", "Thumbs.db", ".gitkeep"}
 
 KIND_BY_EXT = {
@@ -27,6 +25,10 @@ KIND_BY_EXT = {
 }
 
 
+def load(path, default):
+    return json.loads(path.read_text()) if path.exists() else default
+
+
 def human_size(n):
     for unit in ("B", "KB", "MB", "GB"):
         if n < 1024 or unit == "GB":
@@ -34,8 +36,8 @@ def human_size(n):
         n /= 1024
 
 
-def scan_materials():
-    """Return {section_label: [file_info, ...]} for everything under materials/."""
+def scan_materials(exclude_dirs=()):
+    """{section: [file_info]} for materials/, skipping excluded top-level folders."""
     if not MATERIALS.exists():
         return {}
     sections = {}
@@ -43,15 +45,31 @@ def scan_materials():
         if not path.is_file() or path.name in SKIP or path.name.startswith("."):
             continue
         rel = path.relative_to(MATERIALS)
-        # Top-level folder is the section; loose files go under "Files".
-        group = rel.parts[0] if len(rel.parts) > 1 else ""
+        if rel.parts[0] in exclude_dirs or (len(rel.parts) > 1 and rel.parts[1] in exclude_dirs):
+            continue
+        group = rel.parts[1] if len(rel.parts) > 2 else (rel.parts[0] if len(rel.parts) > 1 else "")
         sections.setdefault(group, []).append({
             "name": path.stem.replace("_", " ").replace("-", " "),
-            "href": "/".join(rel.parts),
+            "href": "/" + "/".join(rel.parts),
             "kind": KIND_BY_EXT.get(path.suffix.lower(), path.suffix.lstrip(".").upper() or "FILE"),
             "size": human_size(path.stat().st_size),
         })
     return sections
+
+
+def render_character(c):
+    name = html.escape(c["name"])
+    aka = f' <span class="aka">&ldquo;{html.escape(c["aka"])}&rdquo;</span>' if c.get("aka") else ""
+    relation = f'<span class="relation">{html.escape(c["relation"])}</span>' if c.get("relation") else ""
+    # Linked once a page exists; until then the card is inert.
+    if c.get("status") == "ready":
+        return f"""      <li><a href="/characters/{html.escape(c['slug'])}.html">
+        <span class="cname">{name}{aka}</span>{relation}
+      </a></li>"""
+    return f"""      <li class="inert">
+        <span class="cname">{name}{aka}</span>{relation}
+        <span class="soon">background pending</span>
+      </li>"""
 
 
 def render_link(title, href, description, badge=None, meta=None):
@@ -67,17 +85,38 @@ def render_link(title, href, description, badge=None, meta=None):
 
 
 def main():
-    cfg = json.loads(CONFIG.read_text())
+    cfg = load(LINKS, {})
+    chars = load(CHARACTERS, {})
     site = cfg.get("site", {})
     title = site.get("title", "Materials")
     blocks = []
 
-    # External link sections, in the order they appear in links.json.
+    # Hero: the group portrait.
+    hero = site.get("hero")
+    if hero:
+        cap = site.get("hero_caption", "")
+        blocks.append(
+            f'  <figure class="hero">\n    <img src="{html.escape(hero)}" alt="{html.escape(cap or title)}">\n'
+            + (f'    <figcaption>{html.escape(cap)}</figcaption>\n' if cap else "")
+            + "  </figure>"
+        )
+
+    # Characters.
+    people = chars.get("characters", [])
+    if people:
+        note = chars.get("note")
+        blocks.append(
+            f'  <section>\n    <h2>{html.escape(chars.get("heading", "The Characters"))}</h2>\n'
+            + (f'    <p class="note">{html.escape(note)}</p>\n' if note else "")
+            + '    <ul class="chars">\n'
+            + "\n".join(render_character(c) for c in people)
+            + "\n    </ul>\n  </section>"
+        )
+
+    # External links.
     for section in cfg.get("sections", []):
-        items = [
-            render_link(l["title"], l["url"], l.get("description"), badge="LINK")
-            for l in section.get("links", [])
-        ]
+        items = [render_link(l["title"], l["url"], l.get("description"), badge="LINK")
+                 for l in section.get("links", [])]
         if not items:
             continue
         note = section.get("note")
@@ -87,38 +126,28 @@ def main():
             + "    <ul>\n" + "\n".join(items) + "\n    </ul>\n  </section>"
         )
 
-    # Uploaded materials, grouped by folder.
+    # Files, excluding the group shots already shown as the hero.
     mat_cfg = cfg.get("materials", {})
-    labels = mat_cfg.get("folder_labels", {})
-    found = scan_materials()
+    found = scan_materials(exclude_dirs=tuple(mat_cfg.get("exclude", [])))
     if found:
-        heading = mat_cfg.get("heading", "Files")
-        note = mat_cfg.get("note")
-        blocks.append(
-            f'  <section>\n    <h2>{html.escape(heading)}</h2>\n'
-            + (f'    <p class="note">{html.escape(note)}</p>\n' if note else "")
-        )
+        blocks.append(f'  <section>\n    <h2>{html.escape(mat_cfg.get("heading", "Files"))}</h2>')
+        labels = mat_cfg.get("folder_labels", {})
         for group in sorted(found):
             label = labels.get(group, group.replace("_", " ").replace("-", " ").title() or "General")
-            items = [
-                render_link(f["name"], f["href"], None, badge=f["kind"], meta=f["size"])
-                for f in found[group]
-            ]
             blocks.append(
-                f'    <h3>{html.escape(label)}</h3>\n    <ul>\n' + "\n".join(items) + "\n    </ul>"
+                f'    <h3>{html.escape(label)}</h3>\n    <ul>\n'
+                + "\n".join(render_link(f["name"], f["href"], None, badge=f["kind"], meta=f["size"])
+                            for f in found[group])
+                + "\n    </ul>"
             )
         blocks.append("  </section>")
-    else:
-        blocks.append(
-            '  <section>\n    <p class="empty">No files yet. Drop them into the '
-            "<code>materials/</code> folder and rebuild.</p>\n  </section>"
-        )
 
     doc = f"""<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
 <title>{html.escape(title)}</title>
 <style>
   :root {{
@@ -138,7 +167,7 @@ def main():
     -webkit-text-size-adjust: 100%;
   }}
   .wrap {{ max-width: 46rem; margin: 0 auto; padding: 3rem 1.25rem 4rem; }}
-  header {{ border-bottom: 1px solid var(--line); padding-bottom: 1.5rem; margin-bottom: 2.5rem; }}
+  header {{ border-bottom: 1px solid var(--line); padding-bottom: 1.5rem; margin-bottom: 2rem; }}
   h1 {{ font-size: clamp(1.9rem, 5vw, 2.6rem); margin: 0 0 .4rem; letter-spacing: -.01em; }}
   .tagline {{ color: var(--muted); margin: 0; font-size: 1.05rem; }}
   h2 {{ font-size: 1.3rem; margin: 2.5rem 0 .3rem; }}
@@ -146,24 +175,40 @@ def main():
     font-size: .8rem; text-transform: uppercase; letter-spacing: .09em;
     color: var(--muted); margin: 1.75rem 0 .6rem; font-family: ui-sans-serif, system-ui, sans-serif;
   }}
-  .note, .empty {{ color: var(--muted); margin: 0 0 1rem; font-size: .95rem; }}
-  .empty {{ padding: 1.5rem; border: 1px dashed var(--line); border-radius: 8px; text-align: center; }}
+  .note {{ color: var(--muted); margin: 0 0 1rem; font-size: .95rem; }}
+  .hero {{ margin: 0 0 1rem; }}
+  .hero img {{
+    width: 100%; height: auto; display: block;
+    border-radius: 10px; border: 1px solid var(--line);
+  }}
+  .hero figcaption {{ color: var(--muted); font-size: .88rem; margin-top: .6rem; text-align: center; }}
   ul {{ list-style: none; padding: 0; margin: 0; }}
   li + li {{ margin-top: .5rem; }}
-  li a {{
+  li a, li.inert {{
     display: block; padding: .85rem 1rem; background: var(--card);
     border: 1px solid var(--line); border-radius: 8px;
-    text-decoration: none; color: inherit; transition: border-color .15s, transform .15s;
+    text-decoration: none; color: inherit;
   }}
+  li a {{ transition: border-color .15s, transform .15s; }}
   li a:hover {{ border-color: var(--accent); transform: translateY(-1px); }}
   li a:focus-visible {{ outline: 2px solid var(--accent); outline-offset: 2px; }}
+  li.inert {{ opacity: .72; }}
+  .chars .cname {{ font-weight: 600; }}
+  .aka {{ font-weight: 400; color: var(--muted); }}
+  .relation {{
+    margin-left: .55rem; font-size: .74rem; letter-spacing: .05em; text-transform: uppercase;
+    color: var(--muted); font-family: ui-sans-serif, system-ui, sans-serif;
+  }}
+  .soon {{
+    float: right; font-size: .74rem; color: var(--muted);
+    font-family: ui-sans-serif, system-ui, sans-serif;
+  }}
   .row {{ display: flex; align-items: baseline; gap: .6rem; flex-wrap: wrap; }}
   .title {{ font-weight: 600; }}
   .badge {{
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: .62rem; letter-spacing: .06em; padding: .2rem .4rem;
-    border: 1px solid var(--line); border-radius: 4px; color: var(--muted);
-    flex-shrink: 0;
+    border: 1px solid var(--line); border-radius: 4px; color: var(--muted); flex-shrink: 0;
   }}
   .meta {{ margin-left: auto; color: var(--muted); font-size: .8rem; font-variant-numeric: tabular-nums; }}
   .desc {{ margin: .35rem 0 0; color: var(--muted); font-size: .92rem; }}
@@ -171,7 +216,6 @@ def main():
     margin-top: 3.5rem; padding-top: 1.5rem; border-top: 1px solid var(--line);
     color: var(--muted); font-size: .88rem;
   }}
-  code {{ font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .88em; }}
 </style>
 </head>
 <body>
@@ -189,8 +233,7 @@ def main():
     OUT.parent.mkdir(exist_ok=True)
     OUT.write_text(doc)
     n_files = sum(len(v) for v in found.values())
-    n_links = sum(len(s.get("links", [])) for s in cfg.get("sections", []))
-    print(f"Wrote {OUT.relative_to(ROOT)} — {n_links} external link(s), {n_files} file(s).")
+    print(f"Wrote {OUT.relative_to(ROOT)} — {len(people)} character(s), {n_files} file(s).")
 
 
 if __name__ == "__main__":

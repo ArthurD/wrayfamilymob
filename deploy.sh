@@ -28,7 +28,7 @@ if [ -n "$(find materials -type f ! -name '.*' -print -quit)" ]; then
   $S3 sync materials/ "s3://${BUCKET}/" \
     --acl-public --guess-mime-type \
     --add-header="Cache-Control: public, max-age=86400" \
-    --exclude '.*' --exclude '*/.*' \
+    --exclude '.DS_Store' --exclude 'Thumbs.db' \
     --no-delete-removed $DRY
 else
   echo "materials/ is empty — skipping file sync."

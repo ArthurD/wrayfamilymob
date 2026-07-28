@@ -1,0 +1,34 @@
+{
+  "heading": "The Characters",
+  "note": "Backgrounds are being written from the book. Names and relationships confirmed so far.",
+  "characters": [
+    {
+      "slug": "myung-kim-wray",
+      "name": "Myung Wray",
+      "aka": "Kim",
+      "relation": "Mother",
+      "status": "pending"
+    },
+    {
+      "slug": "daniel-danny-wray",
+      "name": "Daniel Wray",
+      "aka": "Danny",
+      "relation": "Brother",
+      "status": "pending"
+    },
+    {
+      "slug": "michelle-wray",
+      "name": "Michelle Wray",
+      "aka": null,
+      "relation": null,
+      "status": "pending"
+    },
+    {
+      "slug": "kailyn-wray",
+      "name": "Kailyn Wray",
+      "aka": null,
+      "relation": "Niece",
+      "status": "pending"
+    }
+  ]
+}

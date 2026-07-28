@@ -1,0 +1,16 @@
+# Credentials — never commit. Contains the Spaces secret key in plaintext.
+.s3cfg
+.s3cfg-*
+*.pem
+*.key
+
+# Held back from the public repo — contains a third party's home address.
+withheld/
+
+# Local tooling
+.venv/
+
+# Generated output — rebuild with `python3 build.py`
+site/index.html
+
+.DS_Store

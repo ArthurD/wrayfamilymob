@@ -1,34 +1,18 @@
 {
   "site": {
     "title": "Wray Family Mob",
-    "tagline": "Shared materials, records, and links for the family.",
-    "footer": "Maintained by the family. Email arthur@dantonio.info with corrections or additions."
+    "tagline": "Characters, photographs, and source material.",
+    "hero": "/photos/group/20241021_201455_0000.jpg",
+    "hero_caption": "The Wray family, October 2024.",
+    "footer": "Work in progress. Character backgrounds are being drawn from the book."
   },
-  "sections": [
-    {
-      "heading": "Elsewhere on the Web",
-      "note": "External resources hosted outside this site.",
-      "links": [
-        {
-          "title": "EXAMPLE — replace me",
-          "url": "https://example.com",
-          "description": "Delete these two examples and add your own. Only title and url are required; description is optional."
-        },
-        {
-          "title": "EXAMPLE — family tree on Ancestry",
-          "url": "https://www.ancestry.com",
-          "description": "A second example showing an entry with a longer description underneath it."
-        }
-      ]
-    }
-  ],
+  "sections": [],
   "materials": {
     "heading": "Files & Documents",
-    "note": "Anything placed in the local materials/ folder appears here automatically after a rebuild.",
+    "exclude": ["group"],
     "folder_labels": {
       "photos": "Photographs",
-      "documents": "Documents",
-      "audio": "Audio & Recordings"
+      "documents": "Documents"
     }
   }
 }
