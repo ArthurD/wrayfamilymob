@@ -2,10 +2,26 @@
   "site": {
     "title": "Wray Family Mob",
     "tagline": "Characters, photographs, and source material.",
-    "hero": "/photos/group/20241021_201455_0000.jpg",
-    "hero_caption": "The Wray family, October 2024.",
     "footer": "Work in progress. Character backgrounds are being drawn from the book."
   },
+  "carousel": [
+    {
+      "src": "/photos/group/annotated-key.jpg",
+      "caption": "The Wray family, October 2024 — annotated."
+    },
+    {
+      "src": "/photos/group/20241021_201455_0000.jpg",
+      "caption": "The Wray family, October 2024."
+    },
+    {
+      "src": "/photos/group/20241021_200906_0000.jpg",
+      "caption": "The Wray family, October 2024 — alternate."
+    },
+    {
+      "src": "/photos/group/20241021_200042_0000.jpg",
+      "caption": "The Wray family, October 2024 — alternate."
+    }
+  ],
   "sections": [],
   "materials": {
     "heading": "Files & Documents",

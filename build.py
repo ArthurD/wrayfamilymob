@@ -91,14 +91,34 @@ def main():
     title = site.get("title", "Materials")
     blocks = []
 
-    # Hero: the group portrait.
-    hero = site.get("hero")
-    if hero:
-        cap = site.get("hero_caption", "")
+    # Carousel of group portraits; first entry is what loads by default.
+    slides = cfg.get("carousel", [])
+    if not slides and site.get("hero"):
+        slides = [{"src": site["hero"], "caption": site.get("hero_caption", "")}]
+    if slides:
+        figures = "\n".join(
+            f'      <figure>\n'
+            f'        <img src="{html.escape(s["src"])}" alt="{html.escape(s.get("caption") or title)}"'
+            f'{"" if i == 0 else " loading=lazy"}>\n'
+            + (f'        <figcaption>{html.escape(s["caption"])}</figcaption>\n' if s.get("caption") else "")
+            + "      </figure>"
+            for i, s in enumerate(slides)
+        )
+        dots = "\n".join(
+            f'      <button class="dot{" on" if i == 0 else ""}" data-i="{i}" '
+            f'aria-label="Photo {i + 1} of {len(slides)}"></button>'
+            for i in range(len(slides))
+        )
+        nav = ""
+        if len(slides) > 1:
+            nav = (
+                '    <button class="arrow prev" aria-label="Previous photo">&lsaquo;</button>\n'
+                '    <button class="arrow next" aria-label="Next photo">&rsaquo;</button>\n'
+                f'    <div class="dots">\n{dots}\n    </div>\n'
+            )
         blocks.append(
-            f'  <figure class="hero">\n    <img src="{html.escape(hero)}" alt="{html.escape(cap or title)}">\n'
-            + (f'    <figcaption>{html.escape(cap)}</figcaption>\n' if cap else "")
-            + "  </figure>"
+            f'  <section class="carousel" aria-roledescription="carousel">\n'
+            f'    <div class="track">\n{figures}\n    </div>\n{nav}  </section>'
         )
 
     # Characters.
@@ -176,12 +196,37 @@ def main():
     color: var(--muted); margin: 1.75rem 0 .6rem; font-family: ui-sans-serif, system-ui, sans-serif;
   }}
   .note {{ color: var(--muted); margin: 0 0 1rem; font-size: .95rem; }}
-  .hero {{ margin: 0 0 1rem; }}
-  .hero img {{
+  .carousel {{ position: relative; margin: 0 0 1.5rem; }}
+  .carousel .track {{
+    display: flex; overflow-x: auto; scroll-snap-type: x mandatory;
+    scroll-behavior: smooth; scrollbar-width: none; gap: 0;
+  }}
+  .carousel .track::-webkit-scrollbar {{ display: none; }}
+  .carousel figure {{ flex: 0 0 100%; margin: 0; scroll-snap-align: center; }}
+  .carousel img {{
     width: 100%; height: auto; display: block;
     border-radius: 10px; border: 1px solid var(--line);
   }}
-  .hero figcaption {{ color: var(--muted); font-size: .88rem; margin-top: .6rem; text-align: center; }}
+  .carousel figcaption {{
+    color: var(--muted); font-size: .88rem; margin-top: .6rem; text-align: center;
+  }}
+  .arrow {{
+    position: absolute; top: 40%; transform: translateY(-50%);
+    width: 2.4rem; height: 2.4rem; border-radius: 50%; cursor: pointer;
+    border: 1px solid var(--line); background: var(--card); color: var(--fg);
+    font-size: 1.4rem; line-height: 1; display: grid; place-items: center;
+    opacity: .85; transition: opacity .15s;
+  }}
+  .arrow:hover {{ opacity: 1; }}
+  .arrow.prev {{ left: .6rem; }}
+  .arrow.next {{ right: .6rem; }}
+  .dots {{ display: flex; justify-content: center; gap: .4rem; margin-top: .7rem; }}
+  .dot {{
+    width: .5rem; height: .5rem; padding: 0; border-radius: 50%; cursor: pointer;
+    border: 1px solid var(--muted); background: transparent;
+  }}
+  .dot.on {{ background: var(--accent); border-color: var(--accent); }}
+  @media (prefers-reduced-motion: reduce) {{ .carousel .track {{ scroll-behavior: auto; }} }}
   ul {{ list-style: none; padding: 0; margin: 0; }}
   li + li {{ margin-top: .5rem; }}
   li a, li.inert {{
@@ -227,6 +272,44 @@ def main():
 {chr(10).join(blocks)}
   <footer>{html.escape(site.get("footer", ""))}</footer>
 </div>
+<script>
+(function () {{
+  var c = document.querySelector('.carousel');
+  if (!c) return;
+  var track = c.querySelector('.track');
+  var dots = [].slice.call(c.querySelectorAll('.dot'));
+  var slides = [].slice.call(c.querySelectorAll('figure'));
+  if (slides.length < 2) return;
+
+  function go(i) {{
+    i = Math.max(0, Math.min(slides.length - 1, i));
+    track.scrollTo({{ left: slides[i].offsetLeft - track.offsetLeft, behavior: 'smooth' }});
+  }}
+  function current() {{
+    return Math.round(track.scrollLeft / track.clientWidth);
+  }}
+  c.querySelector('.prev').addEventListener('click', function () {{ go(current() - 1); }});
+  c.querySelector('.next').addEventListener('click', function () {{ go(current() + 1); }});
+  dots.forEach(function (d) {{
+    d.addEventListener('click', function () {{ go(+d.dataset.i); }});
+  }});
+
+  var tick;
+  track.addEventListener('scroll', function () {{
+    clearTimeout(tick);
+    tick = setTimeout(function () {{
+      var i = current();
+      dots.forEach(function (d, n) {{ d.classList.toggle('on', n === i); }});
+    }}, 60);
+  }});
+
+  c.tabIndex = 0;
+  c.addEventListener('keydown', function (e) {{
+    if (e.key === 'ArrowLeft') {{ e.preventDefault(); go(current() - 1); }}
+    if (e.key === 'ArrowRight') {{ e.preventDefault(); go(current() + 1); }}
+  }});
+}})();
+</script>
 </body>
 </html>
 """
