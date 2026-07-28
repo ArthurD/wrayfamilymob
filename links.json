@@ -1,0 +1,34 @@
+{
+  "site": {
+    "title": "Wray Family Mob",
+    "tagline": "Shared materials, records, and links for the family.",
+    "footer": "Maintained by the family. Email arthur@dantonio.info with corrections or additions."
+  },
+  "sections": [
+    {
+      "heading": "Elsewhere on the Web",
+      "note": "External resources hosted outside this site.",
+      "links": [
+        {
+          "title": "EXAMPLE — replace me",
+          "url": "https://example.com",
+          "description": "Delete these two examples and add your own. Only title and url are required; description is optional."
+        },
+        {
+          "title": "EXAMPLE — family tree on Ancestry",
+          "url": "https://www.ancestry.com",
+          "description": "A second example showing an entry with a longer description underneath it."
+        }
+      ]
+    }
+  ],
+  "materials": {
+    "heading": "Files & Documents",
+    "note": "Anything placed in the local materials/ folder appears here automatically after a rebuild.",
+    "folder_labels": {
+      "photos": "Photographs",
+      "documents": "Documents",
+      "audio": "Audio & Recordings"
+    }
+  }
+}

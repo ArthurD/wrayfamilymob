@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(chmod 600 .s3cfg)",
+      "Bash(.venv/bin/s3cmd -c .s3cfg ls)",
+      "WebSearch",
+      "Bash(.venv/bin/pip install *)",
+      "Bash(.venv/bin/aws --version)"
+    ]
+  }
+}
