@@ -1,34 +1,50 @@
 {
   "heading": "The Characters",
-  "note": "Backgrounds are being written from the book. Names and relationships confirmed so far.",
+  "note": "Backgrounds are being drawn from the book.",
+  "_schema": {
+    "slug": "stable id; used for the page URL and for photo links in photos.json",
+    "name": "display name",
+    "aka": "nickname, shown in quotes after the name (optional)",
+    "relation": "short label, e.g. Mother (optional)",
+    "role": "one line shown under the name on the home page (optional)",
+    "summary": "list of strings; each becomes a paragraph on the character page",
+    "captions": "optional {filename: caption} overrides for that person's photos"
+  },
   "characters": [
     {
       "slug": "myung-kim-wray",
       "name": "Myung Wray",
       "aka": "Kim",
       "relation": "Mother",
-      "status": "pending"
+      "summary": []
     },
     {
       "slug": "daniel-danny-wray",
       "name": "Daniel Wray",
       "aka": "Danny",
       "relation": "Brother",
-      "status": "pending"
+      "summary": []
     },
     {
       "slug": "michelle-wray",
       "name": "Michelle Wray",
-      "aka": null,
-      "relation": null,
-      "status": "pending"
+      "summary": []
     },
     {
       "slug": "kailyn-wray",
       "name": "Kailyn Wray",
-      "aka": null,
       "relation": "Niece",
-      "status": "pending"
+      "summary": []
+    },
+    {
+      "slug": "farhan",
+      "name": "Farhan",
+      "summary": []
+    },
+    {
+      "slug": "avery-macgregor",
+      "name": "Avery MacGregor",
+      "summary": []
     }
   ]
 }

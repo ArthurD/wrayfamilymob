@@ -1,0 +1,37 @@
+{
+  "_readme": [
+    "Many-to-many join between photos and people.",
+    "  id      — stable identifier for the photo; never reuse one.",
+    "  src     — path under materials/, as served (leading slash optional).",
+    "  people  — list of character slugs from characters.json appearing in it.",
+    "A photo listed here shows up on every linked character's page.",
+    "Shortcut for single-person shots: drop the file straight into",
+    "materials/photos/people/<slug>/ and it is picked up with no entry here."
+  ],
+  "photos": [
+    {
+      "id": "grp-001",
+      "src": "/photos/group/annotated-key.jpg",
+      "caption": "The family, October 2024 — annotated.",
+      "people": ["myung-kim-wray", "daniel-danny-wray", "michelle-wray", "kailyn-wray"]
+    },
+    {
+      "id": "grp-002",
+      "src": "/photos/group/20241021_201455_0000.jpg",
+      "caption": "The family, October 2024.",
+      "people": ["myung-kim-wray", "daniel-danny-wray", "michelle-wray", "kailyn-wray"]
+    },
+    {
+      "id": "grp-003",
+      "src": "/photos/group/20241021_200906_0000.jpg",
+      "caption": "The family, October 2024 — alternate.",
+      "people": ["myung-kim-wray", "daniel-danny-wray", "michelle-wray", "kailyn-wray"]
+    },
+    {
+      "id": "grp-004",
+      "src": "/photos/group/20241021_200042_0000.jpg",
+      "caption": "The family, October 2024 — alternate.",
+      "people": ["myung-kim-wray", "daniel-danny-wray", "michelle-wray", "kailyn-wray"]
+    }
+  ]
+}

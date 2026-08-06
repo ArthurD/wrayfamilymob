@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Wray Family Mob</title>
+<title>Michelle Wray — Wray Family Mob</title>
 <style>
   :root {
     --bg: #fbfaf8; --fg: #1b1a17; --muted: #6b6862;
@@ -122,94 +122,31 @@
 </head>
 <body>
 <div class="wrap">
+  <a class="back" href="/index.html">&larr; Wray Family Mob</a>
   <header>
-    <h1>Wray Family Mob</h1>
-    <p class="tagline">Characters, photographs, and source material.</p>
+    <h1>Michelle Wray</h1>
+    
   </header>
-  <section class="carousel" aria-roledescription="carousel">
-    <div class="track">
-      <figure>
-        <img src="/photos/group/annotated-key.jpg" alt="The Wray family, October 2024 — annotated.">
-        <figcaption>The Wray family, October 2024 — annotated.</figcaption>
-      </figure>
-      <figure>
-        <img src="/photos/group/20241021_201455_0000.jpg" alt="The Wray family, October 2024." loading=lazy>
-        <figcaption>The Wray family, October 2024.</figcaption>
-      </figure>
-      <figure>
-        <img src="/photos/group/20241021_200906_0000.jpg" alt="The Wray family, October 2024 — alternate." loading=lazy>
-        <figcaption>The Wray family, October 2024 — alternate.</figcaption>
-      </figure>
-      <figure>
-        <img src="/photos/group/20241021_200042_0000.jpg" alt="The Wray family, October 2024 — alternate." loading=lazy>
-        <figcaption>The Wray family, October 2024 — alternate.</figcaption>
-      </figure>
-    </div>
-    <button class="arrow prev" aria-label="Previous photo">&lsaquo;</button>
-    <button class="arrow next" aria-label="Next photo">&rsaquo;</button>
-    <div class="dots">
-      <button class="dot on" data-i="0" aria-label="Photo 1 of 4"></button>
-      <button class="dot" data-i="1" aria-label="Photo 2 of 4"></button>
-      <button class="dot" data-i="2" aria-label="Photo 3 of 4"></button>
-      <button class="dot" data-i="3" aria-label="Photo 4 of 4"></button>
-    </div>
-  </section>
-  <section>
-    <h2>The Characters</h2>
-    <p class="note">Backgrounds are being drawn from the book.</p>
-    <ul class="chars">
-      <li><a href="/characters/myung-kim-wray.html">
-        <span class="cname">Myung Wray <span class="aka">&ldquo;Kim&rdquo;</span></span><span class="relation">Mother</span><span class="count">4 photos</span>
-      </a></li>
-      <li><a href="/characters/daniel-danny-wray.html">
-        <span class="cname">Daniel Wray <span class="aka">&ldquo;Danny&rdquo;</span></span><span class="relation">Brother</span><span class="count">4 photos</span>
-      </a></li>
-      <li><a href="/characters/michelle-wray.html">
-        <span class="cname">Michelle Wray</span><span class="count">4 photos</span>
-      </a></li>
-      <li><a href="/characters/kailyn-wray.html">
-        <span class="cname">Kailyn Wray</span><span class="relation">Niece</span><span class="count">4 photos</span>
-      </a></li>
-      <li class="inert">
-        <span class="cname">Farhan</span><span class="soon">pending</span>
-      </li>
-      <li class="inert">
-        <span class="cname">Avery MacGregor</span><span class="soon">pending</span>
-      </li>
-    </ul>
-  </section>
-  <footer>Work in progress. Character backgrounds are being drawn from the book.</footer>
+  <p class="note">No description yet.</p>
+  <div class="gallery">
+    <figure>
+      <img src="/photos/group/annotated-key.jpg" alt="The family, October 2024 — annotated." loading="lazy">
+      <figcaption>The family, October 2024 — annotated.</figcaption>
+    </figure>
+    <figure>
+      <img src="/photos/group/20241021_201455_0000.jpg" alt="The family, October 2024." loading="lazy">
+      <figcaption>The family, October 2024.</figcaption>
+    </figure>
+    <figure>
+      <img src="/photos/group/20241021_200906_0000.jpg" alt="The family, October 2024 — alternate." loading="lazy">
+      <figcaption>The family, October 2024 — alternate.</figcaption>
+    </figure>
+    <figure>
+      <img src="/photos/group/20241021_200042_0000.jpg" alt="The family, October 2024 — alternate." loading="lazy">
+      <figcaption>The family, October 2024 — alternate.</figcaption>
+    </figure>
+  </div>
 </div>
-<script>
-(function () {
-  var c = document.querySelector('.carousel');
-  if (!c) return;
-  var track = c.querySelector('.track');
-  var dots = [].slice.call(c.querySelectorAll('.dot'));
-  var slides = [].slice.call(c.querySelectorAll('figure'));
-  if (slides.length < 2) return;
-  function go(i) {
-    i = Math.max(0, Math.min(slides.length - 1, i));
-    track.scrollTo({ left: slides[i].offsetLeft - track.offsetLeft, behavior: 'smooth' });
-  }
-  function current() { return Math.round(track.scrollLeft / track.clientWidth); }
-  c.querySelector('.prev').addEventListener('click', function () { go(current() - 1); });
-  c.querySelector('.next').addEventListener('click', function () { go(current() + 1); });
-  dots.forEach(function (d) { d.addEventListener('click', function () { go(+d.dataset.i); }); });
-  var tick;
-  track.addEventListener('scroll', function () {
-    clearTimeout(tick);
-    tick = setTimeout(function () {
-      var i = current();
-      dots.forEach(function (d, n) { d.classList.toggle('on', n === i); });
-    }, 60);
-  });
-  c.tabIndex = 0;
-  c.addEventListener('keydown', function (e) {
-    if (e.key === 'ArrowLeft') { e.preventDefault(); go(current() - 1); }
-    if (e.key === 'ArrowRight') { e.preventDefault(); go(current() + 1); }
-  });
-})();
-</script>
+
 </body>
 </html>
